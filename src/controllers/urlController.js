@@ -1,4 +1,5 @@
 import { createShortUrl, getOriginalUrl } from '../services/urlService.js';
+import Url from '../models/url.js'; // Import the Url model
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -10,6 +11,15 @@ const shortenUrl = async (req, res) => {
   }
 
   try {
+    
+    const existing = await Url.findOne({ originalUrl });
+    if (existing) {
+      return res.status(200).json({
+        originalUrl: existing.originalUrl,
+        shortUrl: `${BASE_URL}/${existing.shortCode}`
+      });
+    }
+
     const url = await createShortUrl(originalUrl);
     res.status(201).json({
       originalUrl: url.originalUrl,
